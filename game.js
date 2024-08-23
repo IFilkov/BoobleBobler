@@ -37,6 +37,10 @@ let healthBar;
 let healthBarBg;
 let health = 100; // Начальный уровень здоровья
 
+let cursors;
+let pointer;
+let gamepad;
+
 let gridWidth, gridHeight; // Количество ячеек по ширине и высоте
 
 let isAutoPlay = false;
@@ -179,11 +183,29 @@ function create() {
   gridWidth = this.sys.game.config.width / gridSize;
   gridHeight = this.sys.game.config.height / gridSize;
 
-  // управление героем
+  // Настройка управления с клавиатуры
+  cursors = this.input.keyboard.createCursorKeys();
+
+  // Настройка управления с сенсорного экрана и мыши
   this.input.on("pointermove", function (pointer) {
     hero.targetX = pointer.worldX;
     hero.targetY = pointer.worldY;
   });
+
+  // Настройка управления с геймпада
+  if (this.input.gamepad) {
+    this.input.gamepad.once("connected", function (pad) {
+      console.log("Gamepad connected:", pad.id);
+      gamepad = pad;
+    });
+
+    this.input.gamepad.once("disconnected", function (pad) {
+      console.log("Gamepad disconnected:", pad.id);
+      gamepad = null;
+    });
+  } else {
+    console.log("Gamepad input is not supported or not initialized.");
+  }
 
   this.input.keyboard.on("keydown-SPACE", () => toggleAutoPlay(this), this);
 
@@ -341,6 +363,52 @@ function update() {
   topScoreText.setPosition(config.width / 2 - 80, 600);
   healthBarBg.setPosition(config.width / 2 - 75, 50);
   updateHealthBar();
+
+  let speed = 200;
+  let vx = 0,
+    vy = 0;
+
+  // Управление с клавиатуры
+  if (cursors.left.isDown) {
+    hero.targetX = hero.x - speed;
+  } else if (cursors.right.isDown) {
+    hero.targetX = hero.x + speed;
+  }
+
+  if (cursors.up.isDown) {
+    hero.targetY = hero.y - speed;
+  } else if (cursors.down.isDown) {
+    hero.targetY = hero.y + speed;
+  }
+
+  // Управление с геймпада
+  if (gamepad) {
+    vx = gamepad.axes[0].getValue() * speed; // Левый стик по оси X
+    vy = gamepad.axes[1].getValue() * speed; // Левый стик по оси Y
+
+    hero.targetX = hero.x + vx;
+    hero.targetY = hero.y + vy;
+
+    // Если нужна поддержка кнопок, например, прыжок
+    if (gamepad.buttons[0].pressed) {
+      // Кнопка A на геймпаде
+      hero.setVelocityY(-300); // Прыжок
+    }
+  }
+
+  // Движение героя к цели
+  if (hero.targetX !== undefined && hero.targetY !== undefined) {
+    let dx = hero.targetX - hero.x;
+    let dy = hero.targetY - hero.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > 5) {
+      // Если нужно, регулируйте значение, чтобы определить, когда герой остановится
+      hero.setVelocity((dx / distance) * speed, (dy / distance) * speed);
+    } else {
+      hero.setVelocity(0, 0); // Остановите героя, когда он достигнет цели
+    }
+  }
 }
 
 function drawCircle(x, y, radius, color) {
