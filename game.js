@@ -78,6 +78,7 @@ function toggleHeroVisibility() {
     // Переместить героя за пределы видимой области
     hero.x = -1000;
     hero.y = -1000;
+    hero.color = "white";
     hero.setVelocity(0, 0);
     hero.visible = false;
     console.log("Hero is now hidden");
