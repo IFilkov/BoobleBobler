@@ -357,6 +357,8 @@ function create() {
   );
 }
 
+let currentInput = "mouse"; // Текущий источник ввода: 'mouse' или 'gamepad'
+
 function update() {
   graphics.clear();
   graphics.fillStyle(0xffffff, 1);
@@ -391,8 +393,6 @@ function update() {
   updateHealthBar();
 
   let speed = 200;
-  let vx = 0,
-    vy = 0;
 
   // Управление с клавиатуры
   if (cursors.left.isDown) {
@@ -405,6 +405,43 @@ function update() {
     hero.targetY = hero.y - speed;
   } else if (cursors.down.isDown) {
     hero.targetY = hero.y + speed;
+  }
+
+  let vx = 0,
+    vy = 0;
+  if (this.input.gamepad && this.input.gamepad.total > 0) {
+    let pad = this.input.gamepad.getPad(0);
+
+    if (pad) {
+      // Проверка на движение аналоговыми стиками
+      let leftStickX = pad.axes.length > 0 ? pad.axes[0].getValue() : 0;
+      let leftStickY = pad.axes.length > 1 ? pad.axes[1].getValue() : 0;
+
+      if (Math.abs(leftStickX) > 0.1 || Math.abs(leftStickY) > 0.1) {
+        currentInput = "gamepad";
+        hero.x += leftStickX * 5;
+        hero.y += leftStickY * 5;
+      }
+    }
+  }
+  // Управление мышью только если текущий ввод — мышь
+  if (currentInput === "mouse") {
+    this.input.on("pointermove", function (pointer) {
+      hero.targetX = pointer.worldX;
+      hero.targetY = pointer.worldY;
+    });
+
+    // Движение героя к цели
+    // if (hero.targetX !== undefined && hero.targetY !== undefined) {
+    //   let dx = hero.targetX - hero.x;
+    //   let dy = hero.targetY - hero.y;
+    //   let distance = Math.sqrt(dx * dx + dy * dy);
+
+    //   if (distance > 1) {
+    //     hero.x += (dx / distance) * 5;
+    //     hero.y += (dy / distance) * 5;
+    //   }
+    // }
   }
 
   // // Управление с геймпада
@@ -480,6 +517,11 @@ function update() {
     }
   }
 }
+
+// Переключение на управление мышью, когда пользователь использует мышь
+this.input.on("pointermove", function (pointer) {
+  currentInput = "mouse";
+});
 
 function drawCircle(x, y, radius, color) {
   graphics.fillStyle(color, 1);
