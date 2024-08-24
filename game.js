@@ -413,14 +413,57 @@ function update() {
     let pad = this.input.gamepad.getPad(0);
 
     if (pad) {
-      // Проверка на движение аналоговыми стиками
+      // Управление левым стиком
       let leftStickX = pad.axes.length > 0 ? pad.axes[0].getValue() : 0;
       let leftStickY = pad.axes.length > 1 ? pad.axes[1].getValue() : 0;
 
+      // Управление правым стиком
+      let rightStickX = pad.axes.length > 2 ? pad.axes[2].getValue() : 0;
+      let rightStickY = pad.axes.length > 3 ? pad.axes[3].getValue() : 0;
+
+      // Движение героя левым стиком
       if (Math.abs(leftStickX) > 0.1 || Math.abs(leftStickY) > 0.1) {
-        currentInput = "gamepad";
-        hero.x += leftStickX * 5;
-        hero.y += leftStickY * 5;
+        hero.x += leftStickX * 10;
+        hero.y += leftStickY * 10;
+      }
+
+      // Движение героя правым стиком
+      if (Math.abs(rightStickX) > 0.1 || Math.abs(rightStickY) > 0.1) {
+        hero.x += rightStickX * 10;
+        hero.y += rightStickY * 10;
+      }
+
+      // Проверка кнопок D-Pad (если поддерживается)
+      if (pad.left) {
+        hero.x -= 10; // Двигаем героя влево
+      }
+      if (pad.right) {
+        hero.x += 10; // Двигаем героя вправо
+      }
+      if (pad.up) {
+        hero.y -= 10; // Двигаем героя вверх
+      }
+      if (pad.down) {
+        hero.y += 10; // Двигаем героя вниз
+      }
+
+      // Обработка нажатия кнопок
+      if (pad.buttons[0].pressed) {
+        console.log("Button A pressed");
+        // Добавьте действие при нажатии на кнопку A
+        toggleHeroVisibility();
+      }
+      if (pad.buttons[1].pressed) {
+        console.log("Button B pressed");
+        // Добавьте действие при нажатии на кнопку B
+      }
+      if (pad.buttons[2].pressed) {
+        console.log("Button X pressed");
+        // Добавьте действие при нажатии на кнопку X
+      }
+      if (pad.buttons[3].pressed) {
+        console.log("Button Y pressed");
+        // Добавьте действие при нажатии на кнопку Y
       }
     }
   }
@@ -461,47 +504,47 @@ function update() {
   //   }
   // }
   // Проверяем наличие геймпада
-  if (this.input.gamepad && this.input.gamepad.total > 0) {
-    let pad = this.input.gamepad.getPad(0); // Получаем первый подключенный геймпад
+  // if (this.input.gamepad && this.input.gamepad.total > 0) {
+  //   let pad = this.input.gamepad.getPad(0); // Получаем первый подключенный геймпад
 
-    if (pad) {
-      // Проверка кнопок D-Pad (если поддерживается)
-      if (pad.left) {
-        hero.x -= 5; // Двигаем героя влево
-      }
-      if (pad.right) {
-        hero.x += 5; // Двигаем героя вправо
-      }
-      if (pad.up) {
-        hero.y -= 5; // Двигаем героя вверх
-      }
-      if (pad.down) {
-        hero.y += 5; // Двигаем героя вниз
-      }
+  //   if (pad) {
+  //     // Проверка кнопок D-Pad (если поддерживается)
+  //     if (pad.left) {
+  //       hero.x -= 5; // Двигаем героя влево
+  //     }
+  //     if (pad.right) {
+  //       hero.x += 5; // Двигаем героя вправо
+  //     }
+  //     if (pad.up) {
+  //       hero.y -= 5; // Двигаем героя вверх
+  //     }
+  //     if (pad.down) {
+  //       hero.y += 5; // Двигаем героя вниз
+  //     }
 
-      // Проверка аналоговых стиков
-      let leftStickX = pad.axes.length > 0 ? pad.axes[0].getValue() : 0;
-      let leftStickY = pad.axes.length > 1 ? pad.axes[1].getValue() : 0;
+  //     // Проверка аналоговых стиков
+  //     let leftStickX = pad.axes.length > 0 ? pad.axes[0].getValue() : 0;
+  //     let leftStickY = pad.axes.length > 1 ? pad.axes[1].getValue() : 0;
 
-      if (leftStickX < -0.1) {
-        hero.x -= 5;
-      } else if (leftStickX > 0.1) {
-        hero.x += 5;
-      }
+  //     if (leftStickX < -0.1) {
+  //       hero.x -= 5;
+  //     } else if (leftStickX > 0.1) {
+  //       hero.x += 5;
+  //     }
 
-      if (leftStickY < -0.1) {
-        hero.y -= 5;
-      } else if (leftStickY > 0.1) {
-        hero.y += 5;
-      }
+  //     if (leftStickY < -0.1) {
+  //       hero.y -= 5;
+  //     } else if (leftStickY > 0.1) {
+  //       hero.y += 5;
+  //     }
 
-      // Выводим данные в консоль для отладки
-      console.log("Left Stick X:", leftStickX);
-      console.log("Left Stick Y:", leftStickY);
-    }
-  } else {
-    console.log("No gamepad detected or not initialized.");
-  }
+  //     // Выводим данные в консоль для отладки
+  //     console.log("Left Stick X:", leftStickX);
+  //     console.log("Left Stick Y:", leftStickY);
+  //   }
+  // } else {
+  //   console.log("No gamepad detected or not initialized.");
+  // }
 
   // Движение героя к цели
   if (hero.targetX !== undefined && hero.targetY !== undefined) {
